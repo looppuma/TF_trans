@@ -1,4 +1,3 @@
-@@ -0,0 +1,156 @@
 #  Copyright 2016 The TensorFlow Authors. All Rights Reserved.
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,29 +17,30 @@ It follows description from this TensorFlow tutorial:
     https://www.tensorflow.org/versions/master/tutorials/mnist/pros/index.html#deep-mnist-for-experts
 """
 
-from __future__ import absolute_import  #从py。2导入3.x的导入特性语句，绝对导入，这种编写工具包以绝对导入进行相对导入的方法还避免了from ..submodule import b
-from __future__ import division       #导入未来版本除法
-from __future__ import print_function #python2.X，也得按照python3.X那样使用这些打印函数
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 
 import numpy as np
 import tensorflow as tf
 
+N_DIGITS = 10    # Number of digits.模型对象个数0-9
+X_FEATURE = 'x'  # Name of the input feature.输入特征的名称
 
-N_DIGITS = 10  # Number of digits.数的个数
-X_FEATURE = 'x'  # Name of the input feature.输入特征名称
-
-
-def conv_model(features, labels, mode): #定义卷积模型（特征，标签，模式）
-  """2-layer convolution model."""
+#卷积模型函数
+#输入：特征，标签，模式
+def conv_model(features, labels, mode): 
+  """2-layer convolution model. 2层卷积模型"""
   # Reshape feature to 4d tensor with 2nd and 3rd dimensions being
   # image width and height final dimension being the number of color channels.
-  # 用第二（图片宽度）和第三维度（高度），最后一维是颜色通道的数目来重塑特征为四维张量
+  # 用第二维（图片宽度）和第三维（图片高度），第四维(颜色通道的数目)来重塑特征为四维张量
   # 特征=tf重塑函数（特征【输入名称】，【-1, 28, 28, 1])，要将数据输入进二维的卷积网络，
   # 首先要进行一次reshape，把[batch, 784]的数据变成[-1, 28, 28, 1]，其中
-  # batch位填入“-1”可以自适应输入，width和height位为输入图像的原始宽高，最后一位是原始图像的通道数1（灰度图为单通道）；
+  # batch位填入“-1”可以自适应输入，width和height为输入图像的原始宽高，最后一位是原始图像的通道数1（灰度图为单通道）；
   feature = tf.reshape(features[X_FEATURE], [-1, 28, 28, 1])
 
-  # First conv layer will compute 32 features for each 5x5 patch，第一层将会对每个5x5的块计算32个特征
+  # First conv layer will compute 32 features for each 5x5 patch
+  # 1.卷积层将会对每个5x5的块计算32个特征
   #声明第一层卷积，输入28*28*1，输出28*28*32，get_variable()函数的控制器，其定义一个作用域空间，在该空间下，
   # 通过get_variable()获得的变量的variable_name都加一个命名空间的前缀，即namespace/variable_name；
   with tf.variable_scope('conv_layer1'):
@@ -53,8 +53,9 @@ def conv_model(features, labels, mode): #定义卷积模型（特征，标签，
         activation=tf.nn.relu) #要采用的激活函数。
     h_pool1 = tf.layers.max_pooling2d(
         h_conv1, pool_size=2, strides=2, padding='same')
-  #构建2维池化（要被池化的输入Tensor，池化窗口的大小，进行池化操作的步长， ）
+    #构建2维池化（要被池化的输入Tensor，池化窗口的大小，进行池化操作的步长， ）
   # Second conv layer will compute 64 features for each 5x5 patch.
+  # 2.卷积层将会对每个5x5的块计算64个特征
   with tf.variable_scope('conv_layer2'):
     h_conv2 = tf.layers.conv2d(
         h_pool1,
@@ -111,19 +112,20 @@ def conv_model(features, labels, mode): #定义卷积模型（特征，标签，
       mode, loss=loss, eval_metric_ops=eval_metric_ops)
   # 返回的是一个EstimatorSpec对象（模式，损失，迭代度量操作=度量操作）
 
-def main(unused_args):   #定义函数main（未用的参数 args）
+#main函数
+def main(unused_args):
   tf.logging.set_verbosity(tf.logging.INFO) #可通过tensorboard来看出训练过程中
   # loss accuracy的变化。打开cmd 进入python, tensorboard --logdir=c:/***(日志保存的路径)
-
-
-  ### Download and load MNIST dataset.下载数据集
+  
+  ### Download and load MNIST dataset.
+  ### 下载/加载数据集
   mnist = tf.contrib.learn.datasets.DATASETS['mnist']('/tmp/mnist')  #对mnist进行赋值为
   #数据集【mnist】（’路径‘）
   train_input_fn = tf.estimator.inputs.numpy_input_fn(   #训练输入函数fn=numpy输入函数
-      x={X_FEATURE: mnist.train.images},        #x={x特征：mnist训练图像），
-      y=mnist.train.labels.astype(np.int32),    #y=标志的类型（32位）
-      batch_size=100,                           #批尺寸为100
-      num_epochs=None,                          #数据代数为空
+      x={X_FEATURE: mnist.train.images},                 #x={x特征：mnist训练图像），
+      y=mnist.train.labels.astype(np.int32),             #y=标志的类型（32位）
+      batch_size=100,                                    #批尺寸为100
+      num_epochs=None,                                   #数据代数为空
       shuffle=True)
   test_input_fn = tf.estimator.inputs.numpy_input_fn(
       x={X_FEATURE: mnist.train.images},
@@ -131,27 +133,29 @@ def main(unused_args):   #定义函数main（未用的参数 args）
       num_epochs=1,
       shuffle=False)
 
-  ### Linear classifier.线性分类
+  ### Linear classifier.
+  ### 线性分类器
   feature_columns = [                     #特征栏
       tf.feature_column.numeric_column(
           X_FEATURE, shape=mnist.train.images.shape[1:])]
       #特征数据栏（x特征，形状=训练图片中的形状的第一行仍一列）
   classifier = tf.estimator.LinearClassifier(               #分类器为评估中的线性分类器
       feature_columns=feature_columns, n_classes=N_DIGITS)  #（特征列=特征列，n类=N_DIGIT
-  classifier.train(input_fn=train_input_fn, steps=200)     #分类器的训练（输入函数fn=
+  classifier.train(input_fn=train_input_fn, steps=200)      #分类器的训练（输入函数fn=
   # 训练输入fn，步骤为200
-  scores = classifier.evaluate(input_fn=test_input_fn)   #分数=分类器的评估函数（输入
+  scores = classifier.evaluate(input_fn=test_input_fn)      #分数=分类器的评估函数（输入
   # 函数fn=测试输入fn）
   print('Accuracy (LinearClassifier): {0:f}'.format(scores['accuracy']))
-   #打印（‘准确率（线性分类器）：{浮点数精度为1.字符串（分数【准确率】）
-  ### Convolutional network 卷积网络
+  #打印（‘准确率（线性分类器）：{浮点数精度为1.字符串（分数【准确率】）
+  ### Convolutional network
+  ### 卷积网络
   classifier = tf.estimator.Estimator(model_fn=conv_model)   #线性分类器=评估函数（模型fn
   #=卷积模型）
-  classifier.train(input_fn=train_input_fn, steps=200)   #分类器训练函数（输入fn=
+  classifier.train(input_fn=train_input_fn, steps=200)       #分类器训练函数（输入fn=
   # 训练输入fn，步骤数为200）
-  scores = classifier.evaluate(input_fn=test_input_fn)   #分数=分类器评估（输入fn=测试输入fn）
+  scores = classifier.evaluate(input_fn=test_input_fn)       #分数=分类器评估（输入fn=测试输入fn）
   print('Accuracy (conv_model): {0:f}'.format(scores['accuracy']))
   #打印（’准确率（卷积模型）：{位浮点}。字符串（‘准确率’）
 
-if __name__ == '__main__': #用这种方式保证了，如果此文件被其他文件import的时候，不会执行main中的代码
-  tf.app.run()             # 通常用此函数解析命令行后，运行main函数
+if __name__ == '__main__': 
+  tf.app.run()
