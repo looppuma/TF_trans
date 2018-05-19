@@ -1,16 +1,17 @@
-#  Copyright 2016 The TensorFlow Authors. All Rights Reserved.
-#
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+#==============================================================================
+1. 下载并加载minist数据集，分为训练集和测试集
+2. 使用线性分类器模型进行特征向量的分类，训练结果进行评估打分(传统模型效果基线)
+3. 使用卷积网络模型进行分类，训练结果进行评估打分(新模型效果比对)
+   3.1. 通过图像宽/高/色彩通道得到4维特征张量
+   3.2. 使用卷积第一层为5x5的块计算32个特征--->池化降维
+   3.3. 使用卷积第一层为5x5的块计算64个特征--->池化降维--->张量整形为一组向量
+   3.4. 1024个神经元的全连接层
+   3.5. 计算logits估计值和损失值
+   3.6. 训练操作
+   3.7. 计算评估预测准确度
+   
+#==============================================================================
+
 """This showcases how simple it is to build image classification networks.
 
 It follows description from this TensorFlow tutorial:
