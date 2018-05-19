@@ -1,4 +1,4 @@
-# TF_trans  (Tensorflow_translate)
+# TF_trans (Tensorflow_translate)
 ---
 ## 目录结构
 1.用例都按原工程目录结构存放  
